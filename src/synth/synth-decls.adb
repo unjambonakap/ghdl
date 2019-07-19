@@ -29,6 +29,8 @@ with Synth.Values; use Synth.Values;
 with Synth.Environment; use Synth.Environment;
 with Synth.Expr; use Synth.Expr;
 with Vhdl.Annotations; use Vhdl.Annotations;
+with Simple_IO;
+with Netlists.Dump;
 
 package body Synth.Decls is
    procedure Synth_Anonymous_Subtype_Indication
@@ -350,6 +352,8 @@ package body Synth.Decls is
       Decl : Iir;
    begin
       Decl := Decls;
+      Simple_IO.Put("Processing decl " & Iir'Image(Decl) & " >>  ");
+      Netlists.Dump.Dump_Name(Syn_Inst.Name);
       while Is_Valid (Decl) loop
          Synth_Declaration (Syn_Inst, Decl);
 

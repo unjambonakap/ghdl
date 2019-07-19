@@ -22,8 +22,11 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 with Ghdlmain; use Ghdlmain;
 with Ghdlsynth;
-with Options; use Options;
+with Options;
 with Errorout.Console;
+with Ada.Text_IO;
+with Ada.Exceptions;
+
 
 package body Libghdlsynth is
    function Synth (Argc : Natural; Argv : C_String_Array_Acc) return Module
@@ -50,11 +53,10 @@ package body Libghdlsynth is
 
       return Res;
    exception
-      when Option_Error =>
-         return No_Module;
-      when others =>
-         --  Avoid possible issues with exceptions...
-         return No_Module;
+   when The_Error : others =>
+      Ada.Text_IO.Put_Line ("Unexpected error.");
+      Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (The_Error));
+      return No_Module;
    end Synth;
 
    Gnat_Version : constant String := "unknown compiler version" & ASCII.NUL;

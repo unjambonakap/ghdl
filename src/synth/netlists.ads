@@ -92,7 +92,8 @@ package Netlists is
    --
    --  Some modules are predefined and therefore have no inner description.
    --  These are the well known elementary gates.
-   type Module is private;
+   -- type Module is private;
+   type Module is new Uns32;
    No_Module : constant Module;
 
    --  An instance is an instantiated module within a module.  It is
@@ -286,7 +287,6 @@ private
    for Sname_Record'Size use 2*32;
    pragma Warnings (On, "*convention*");
 
-   type Module is new Uns32;
    No_Module : constant Module := 0;
    Free_Module : constant Module := 1;
 

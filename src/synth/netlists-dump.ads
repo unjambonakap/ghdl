@@ -28,6 +28,7 @@ package Netlists.Dump is
 
    --  Raw dump.
    procedure Dump_Module (M : Module; Indent : Natural := 0);
+   procedure Dump_Name (N : Sname);
 
    --  More humain readable output.
    procedure Disp_Module (M : Module; Indent : Natural := 0);

@@ -31,6 +31,10 @@ with Synth.Types; use Synth.Types;
 with Synth.Errors; use Synth.Errors;
 with Synth.Expr; use Synth.Expr;
 
+with GNAT.Traceback;
+with GNAT.Traceback.Symbolic;
+with Ada.Text_IO;
+
 package body Synth.Context is
    package Packages_Table is new Tables
      (Table_Component_Type => Synth_Instance_Acc,
@@ -145,8 +149,20 @@ package body Synth.Context is
    procedure Create_Object
      (Syn_Inst : Synth_Instance_Acc; Decl : Iir; Val : Value_Acc)
    is
+      Trace  : GNAT.Traceback.Tracebacks_Array (1..1000);
+      Length : Natural;
       Info : constant Sim_Info_Acc := Get_Info (Decl);
    begin
+      GNAT.Traceback.Call_Chain (Trace, Length);
+      Ada.Text_IO.Put_Line  (Int32'Image(Int32(Decl)));
+      if Info = null
+      then
+        Ada.Text_IO.Put_Line  (
+          GNAT.Traceback.Symbolic.Symbolic_Traceback (Trace (1..Length)));
+        return;
+        pragma  Assert(Info /= null);
+      end if;
+
       Create_Object (Syn_Inst, Info.Slot, 1);
       Syn_Inst.Objects (Info.Slot) := Val;
    end Create_Object;

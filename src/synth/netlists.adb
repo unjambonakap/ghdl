@@ -20,6 +20,7 @@
 
 with Netlists.Utils; use Netlists.Utils;
 with Tables;
+with Simple_IO;
 
 package body Netlists is
 

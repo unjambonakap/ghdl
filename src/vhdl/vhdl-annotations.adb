@@ -16,12 +16,18 @@
 --  Software Foundation, 59 Temple Place - Suite 330, Boston, MA
 --  02111-1307, USA.
 
+with GNAT.Traceback;
+with GNAT.OS_Lib;
+with GNAT.Traceback.Symbolic;
 with Tables;
 with Simple_IO;
 with Vhdl.Std_Package;
 with Vhdl.Errors; use Vhdl.Errors;
 with Vhdl.Utils; use Vhdl.Utils;
 with Vhdl.Ieee.Std_Logic_1164;
+with Vhdl.Nodes;
+with Name_Table;
+with Bug;
 
 package body Vhdl.Annotations is
    procedure Annotate_Declaration_List
@@ -1240,14 +1246,14 @@ package body Vhdl.Annotations is
       case Info.Kind is
          when Kind_Block =>
             Put_Line
-              ("-- nbr objects:" & Object_Slot_Type'Image (Info.Nbr_Objects));
+              ("-- nbr block objects:" & Object_Slot_Type'Image (Info.Nbr_Objects) & Sim_Info_Kind'Image(Info.Kind));
 
          when Kind_Frame
            | Kind_Protected
            | Kind_Process
            | Kind_Package =>
             Put_Line
-              ("-- nbr objects:" & Object_Slot_Type'Image (Info.Nbr_Objects));
+              ("-- nbr objects:" & Object_Slot_Type'Image (Info.Nbr_Objects)& Sim_Info_Kind'Image(Info.Kind));
 
          when Kind_Object | Kind_Signal | Kind_File
            | Kind_Terminal
@@ -1276,7 +1282,7 @@ package body Vhdl.Annotations is
            | Kind_Process
            | Kind_Package =>
             Put_Line ("nbr objects:"
-                        & Object_Slot_Type'Image (Info.Nbr_Objects));
+                        & Object_Slot_Type'Image (Info.Nbr_Objects) & "    " & Sim_Info_Kind'Image(Info.Kind));
             case Info.Kind is
                when Kind_Block =>
                   Put ("inst_slot:"
@@ -1311,13 +1317,29 @@ package body Vhdl.Annotations is
    end Disp_Tree_Info;
 
    procedure Set_Info (Target: Iir; Info: Sim_Info_Acc) is
+      use Simple_IO;
    begin
       pragma Assert (Info_Node.Table (Target) = null);
       Info_Node.Table (Target) := Info;
    end Set_Info;
 
    function Get_Info (Target: Iir) return Sim_Info_Acc is
+      Id : Name_Id;
+      Trace  : GNAT.Traceback.Tracebacks_Array (1..1000);
+      Length : Natural;
+      use Simple_IO;
    begin
+      Id := Vhdl.Nodes.Get_Identifier(Target);
+      Put_Line(Int32'Image(Int32(Id)));
+      Put_Line("GetInfo Info >> " & Int32'Image(Int32(Target)) & " >> >" & Name_Table.Image(Id));
+      Disp_Info (Info_Node.Table (Target));
       return Info_Node.Table (Target);
+   exception
+      when E: others =>
+        Bug.Disp_Bug_Box (E);
+        GNAT.Traceback.Call_Chain (Trace, Length);
+        Put_Line(
+          GNAT.Traceback.Symbolic.Symbolic_Traceback (Trace (1..Length)));
+        GNAT.OS_Lib.OS_Exit (0);
    end Get_Info;
 end Vhdl.Annotations;
